@@ -1,0 +1,9 @@
+# API Keys ve Credentials - ASLA COMMIT ETMEYİN!
+.env
+secrets.toml
+
+# Virtual Environment
+venv/
+
+# Streamlit
+.streamlit/
