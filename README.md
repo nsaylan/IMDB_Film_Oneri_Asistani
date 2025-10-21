@@ -2,34 +2,34 @@
 
 Bu proje, **IMDb film veri seti** üzerinde çalışan, **RAG (Retrieval-Augmented Generation)** mimarisiyle desteklenmiş bir film öneri chatbot sistemidir. Kullanıcılar doğal dilde film tercihlerini ifade edebilir; sistem bu tercihlere en uygun filmleri gerçek IMDb verilerinden çıkararak akıllı öneriler sunar.
 
-🔗 **Canlı Demo (Deploy Linki):** [https://imdb-film-oneri-asistani.streamlit.app/](https://imdb-film-oneri-asistani.streamlit.app/)  
-*(Lütfen kendi Streamlit deploy linkinizi buraya güncelleyin.)*
 
 ---
 
 ## 📌 Projenin Amacı
 
-Kullanıcıların zevklerine, tür tercihlerine, puan aralıklarına veya yıllara göre kişiselleştirilmiş film önerileri alabilmelerini sağlamak. Sistem, sadece statik filtreleme yerine, **anlamsal benzerlik** ve **doğal dil anlama** yeteneğiyle dinamik ve bağlamsal öneriler sunar.
+Kullanıcıların zevklerine, tür tercihlerine, puan aralıklarına veya yıllara göre kişiselleştirilmiş film önerileri alabilmelerini sağlamak.
 
 ---
 
 ## 🗃️ Veri Seti Hakkında
 
-- **Kaynak:** [Hugging Face – jquigl/imdb-genres](https://huggingface.co/datasets/jquigl/imdb-genres)  
-  (Orijinal veri: [Kaggle – IMDb Movies by Genre](https://www.kaggle.com/datasets/rajugc/imdb-movies-dataset-based-on-genre))
-- **İçerik:** Toplam **297.821 film** (train + test + validation)
-- **Kolonlar:**
+- **Veri Kaynağı:** Hugging Face Datasets
+- **Dataset:** [jquigl/imdb-genres](https://huggingface.co/datasets/jquigl/imdb-genres)
+- **İçerik:** Orijinal veri seti yaklaşık **298K** film kaydı içermektedir.
+- **Kullanım Metodolojisi:** Performans ve Streamlit'in ücretsiz katman kısıtlamaları göz önünde bulundurularak, uygulamanın anlık gereksinimine göre (örneğin 1000, 5000) veri setinin yalnızca ilk $N$ filmi yüklenip işlenmektedir.
+- **Kullanılan Sütunlar:**
   - `movie title - year`: Film adı ve yılı (örn. `"Inception - 2010"`)
   - `genre`: Ana tür (örn. `"Sci-Fi"`)
   - `expanded-genres`: Tüm türler (virgülle ayrılmış)
   - `rating`: IMDb puanı (1–10 arası)
   - `description`: Kısa özet (eksik açıklamalar temizlenmiş)
+- **Veri Temizleme:** Başlık, yıl, tür, puan ve açıklama gibi temel alanlar ayıklanmış, temizlenmiş ve RAG için kullanılacak tek bir content alanında birleştirilmiştir.
 
 > Proje, performans nedeniyle varsayılan olarak **1.000 film** ile başlar. Kullanıcı sidebar’dan 100–5.000 arası örnek boyutunu seçebilir. Veri seti eksikse, 25 popüler film içeren **demo modu** devreye girer.
 
 ---
 
-## ⚙️ Kullanılan Yöntemler
+## ⚙️ Kullanılan Yöntemler ve Çözüm Mimarisi (RAG)
 
 ### 🧠 RAG (Retrieval-Augmented Generation) Mimarisi
 
@@ -47,7 +47,7 @@ Kullanıcıların zevklerine, tür tercihlerine, puan aralıklarına veya yılla
 - Kullanıcı sorgusu geldiğinde, aynı modelle sorgu da vektörleştirilir.
 
 3. **Retrieval (Getirme):**  
-- Kullanıcı sorgusunun embedding’i ile tüm film embedding’leri arasında cosine similarity hesaplanır.
+- Kullanıcı sorgusunun embedding’i ile tüm film embedding’leri arasında **Cosine Similarity** hesaplanır.
 - En yüksek benzerlik skoruna sahip 5 film seçilir.
 - Bu filmler, LLM’e bağlam (context) olarak iletilir.
 
@@ -62,13 +62,13 @@ Kullanıcıların zevklerine, tür tercihlerine, puan aralıklarına veya yılla
 ### 🛠️ Kullanılan Teknolojiler
 | Bileşen | Teknoloji | Açıklama
 |--------|----------| ---------- |
-| LLM & Embedding | Google Gemini API | text-embedding-004
-(embedding), gemini-2.0-flash-exp (generation) |
+| LLM & Embedding | Google Gemini API | text-embedding-004 (embedding), gemini-2.0-flash-exp (generation) |
 | Veri Seti | Hugging Face (`jquigl/imdb-genres`) | 298K film içeren, tür, puan ve açıklama bilgisiyle zenginleştirilmiş veri |
 | Web Arayüzü | Streamlit | Gerçek zamanlı chat arayüzü, sidebar ile yapılandırılabilir parametreler |
 | Ortam Yönetimi | python-dotenv | API anahtarının güvenli yönetimi |
-|RAG Framework | Özelleştirilmiş pipeline (LangChain/Haystack kullanılmadı)| Basit, şeffaf ve hafif bir mimari tercih edildi|
+|RAG Framework | Haystack | Karmaşık RAG Pipeline'larının kolayca oluşturulmasını ve yönetimini sağlayan bir framework|
 | Vektör Depolama | NumPy (in-memory) | Performans ve basitlik için harici vektör DB’si kullanılmadı|
+| Veri İşleme | Pandas, NumPy, Hugging Face Datasets|	Film verilerini yükleme, temizleme ve işleme|
 ---
 
 ## 📊 Elde Edilen Sonuçlar
@@ -76,7 +76,8 @@ Kullanıcıların zevklerine, tür tercihlerine, puan aralıklarına veya yılla
 - Sistem, **doğal dildeki karmaşık sorgulara** (örn. *“8 üzeri psikolojik gerilim filmleri”*) anlamlı yanıtlar verebiliyor.
 - Gerçek IMDb verileri sayesinde öneriler **güvenilir ve güncel**.
 - Demo modu sayesinde **API veya veri seti erişimi olmayan kullanıcılar** bile sistemi test edebiliyor.
-- Arayüz, kullanıcı deneyimini artırmak için **örnek sorular**, **veri istatistikleri** ve **interaktif chat** içeriyor.
+- Streamlit sayesinde uygulama, **kullanıcı dostu** bir arayüze sahiptir. Arayüz, kullanıcı deneyimini artırmak için **örnek sorular**, **veri istatistikleri** ve **interaktif chat** içeriyor. 
+- Chatbot, kullanıcıların diline **(Türkçe/İngilizce)** uyum sağlayarak, film önerilerini kullanıcı tarafından belirtilen türe, puana veya yıla göre filtreleyip sunabilmektedir.
 
 ---
 
@@ -90,7 +91,6 @@ Kullanıcıların zevklerine, tür tercihlerine, puan aralıklarına veya yılla
     - google-genai-haystack
     - datasets
     - pandas
-    - sentence-transformers
     - python-dotenv
     - streamlit
     - numpy
@@ -105,26 +105,33 @@ cd IMDB_Film_Oneri_Asistani
 ```bash
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
+```
+3. Projenin bağımlılıklarını requirements.txt dosyasından yükleyin:
+```bash
 pip install -r requirements.txt
 ```
-3. .env dosyası oluşturun ve API anahtarınızı ekleyin:
+4. .env dosyası oluşturun ve API anahtarınızı ekleyin:
 ```bash
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
-4. Uygulamayı başlatın:
+5. Uygulamayı başlatın:
 ```bash
 streamlit run app.py
 ```
 💡 Not: API anahtarı olmadan uygulama demo modunda (25 popüler filmle) çalışır. 
 
 ## 🌐 Web Arayüzü & Ürün Kılavuzu
+🔗 **Canlı Demo (Deploy Linki):** [https://imdb-film-oneri-asistani.streamlit.app/]
 - **Arayüz**: Streamlit ile geliştirilmiştir.
 - ### Kullanım Akışı:
 ```bash
-1. Sayfa yüklendiğinde sistem otomatik olarak veri setini ve vektör veritabanını hazırlar.
-2. Kullanıcı sidebar’dan veri boyutunu seçebilir.
-3. Chat kutusuna film tercihini doğal dilde yazar (örn. “Komedi filmleri öner”).
-4. Sistem, RAG pipeline’ı üzerinden anında öneri sunar.
+1. Sayfa yüklendiğinde sistem otomatik olarak veri setini ve vektör veritabanını hazırlar. 
+2. Kullanıcı sidebar’dan veri boyutunu seçebilir. Sidebar'da seçilen Veri Seti Boyutuna göre Hugging Face'den veri seti yüklenir ve tüm filmler vektörleştirilerek in-memory veritabanı oluşturulur. Bu aşamalar, yükleme süresi boyunca spinner ile belirtilir.
+3. Kullanıcı, chat kutusuna film tercihini yazar (örn. “Komedi filmleri öner”).
+4. Sistem, RAG pipeline’ı üzerinden:
+  - Sorgu vektörleştirilir.
+  - En benzer 5 film bilgisi geri çekilir.
+  - Bu 5 film bilgisi, Gemini 2.0 Flash'a gönderilerek akıcı ve bilgilendirici bir öneri metni üretilir.
 ```
 - ### Özellikler:
 
