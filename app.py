@@ -525,7 +525,7 @@ def main():
 Sistemde **{len(df)} gerçek IMDb filmi** bulunuyor. Size nasıl film önerileri verebilirim?
 
 **Örnek sorular:**
-- "En iyi aksiyon filmleri nelerdir?"
+- "Romantik filmler öner."
 - "8+ puana sahip drama filmleri öner"
 - "2010 sonrası bilim kurgu filmleri"
 
