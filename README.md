@@ -66,7 +66,6 @@ Kullanıcıların zevklerine, tür tercihlerine, puan aralıklarına veya yılla
 | Veri Seti | Hugging Face (`jquigl/imdb-genres`) | 298K film içeren, tür, puan ve açıklama bilgisiyle zenginleştirilmiş veri |
 | Web Arayüzü | Streamlit | Gerçek zamanlı chat arayüzü, sidebar ile yapılandırılabilir parametreler |
 | Ortam Yönetimi | python-dotenv | API anahtarının güvenli yönetimi |
-|RAG Framework | Haystack | Karmaşık RAG Pipeline'larının kolayca oluşturulmasını ve yönetimini sağlayan bir framework|
 | Vektör Depolama | NumPy (in-memory) | Performans ve basitlik için harici vektör DB’si kullanılmadı|
 | Veri İşleme | Pandas, NumPy, Hugging Face Datasets|	Film verilerini yükleme, temizleme ve işleme|
 ---
